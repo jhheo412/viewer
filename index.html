@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" content="width-device-width, initial-scale-1">
+    <title>Document</title>
+    <script type="importmap">
+        {
+            "imports": {
+            "three": "https://unpkg.com/three@0.148.0/build/three.module.js",
+            "GLTFLoader" : "https://unpkg.com/three@0.148.0/examples/jsm/loaders/GLTFLoader.js",
+            "OrbitControls" : "https://unpkg.com/three@0.148.0/examples/jsm/controls/OrbitControls.js",
+            "DRACOLoader" : "https://unpkg.com/three@0.148.0/examples/jsm/loaders/DRACOLoader.js",
+            "EffectComposer" : "https://unpkg.com/three@0.148.0/examples/jsm/postprocessing/EffectComposer.js",
+            "RenderPass" : "https://unpkg.com/three@0.148.0/examples/jsm/postprocessing/RenderPass.js",
+            "ShaderPass" : "https://unpkg.com/three@0.148.0/examples/jsm/postprocessing/ShaderPass.js",
+            "FXAAShader" : "https://unpkg.com/three@0.148.0/examples/jsm/postprocessing/FXAAShader "
+            }
+        }
+    </script>
+    <script type="module">
+    
+        import * as THREE from 'three';
+        import {GLTFLoader} from 'GLTFLoader';
+        import {OrbitControls} from 'OrbitControls';
+        import {DRACOLoader} from 'DRACOLoader'; 
+        // import {EffectComposer} from 'EffectComposer';
+        // import {RenderPass} from 'RenderPass';
+        // import {OutlinePass} from 'OutlinePass';
+
+        // import {}
+        
+
+        //장면 추가
+        let scene = new THREE.Scene();
+
+        //렌더러 설정
+        let renderer = new THREE.WebGLRenderer({
+            canvas : document.querySelector('#canvas'),
+            antialias: true,
+            logarithmicDepthBuffer : true,
+            depthBuffer: true
+        });
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        //카메라 설정
+        let camera = new THREE. PerspectiveCamera(2.3,1.9);
+        function movehome(x,y,z){
+            camera.position.set(x,y,z);
+        }
+        movehome(120,250,330);
+        camera.lookAt(new THREE.Vector3(0,0,0));
+
+        //배경색 설정
+        scene.background = new THREE.Color('white');
+        
+        //빛 설정
+        let DirectionalLight = new THREE.DirectionalLight(0xffffff,0.3);
+        DirectionalLight.position.set(30,40,-30);
+        DirectionalLight.castShadow=true;
+        let light = new THREE.AmbientLight(0xffffff,1);
+        scene.add(light);
+        scene.add(DirectionalLight);
+
+        //그림자 설정
+        DirectionalLight.shadow.mapSize.width = 512;
+        DirectionalLight.shadow.mapSize.height = 512;
+        DirectionalLight.shadow.camera.near = 0.5;
+        DirectionalLight.shadow.camera.far = 500;
+
+        //shadow helper 조작
+        let helper = new THREE.CameraHelper(DirectionalLight.shadow.camera);
+        scene.add(helper);
+
+        //바닥 설정
+        let planeSize = 100;
+        let planGeo = new THREE.PlaneGeometry(planeSize,planeSize);
+        let planeMat = new THREE.MeshPhongMaterial({
+            color: 0xb4b4b4,
+            side: THREE.DoubleSide,
+        });
+        let plane = new THREE.Mesh(planGeo,planeMat);
+        plane.rotation.x = Math.PI * -0.5;
+        plane.receiveShadow = true;
+        scene.add(plane);
+
+
+        //조작 설정
+        let controls = new OrbitControls(camera, renderer.domElement);
+        controls.maxPolarAngle = Math.PI/2;
+        controls.mouseButtons= {
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.DOLLY
+        }
+        controls.update();
+    
+        let loader = new GLTFLoader();
+        let dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://unpkg.com/three@0.148.0/examples/jsm/libs/draco/');
+        loader.setDRACOLoader(dracoLoader);
+
+        // this.renderScene.overrideMaterial = new THREE.MeshNormalmaterial();
+        // renderer.render(this.renderScene, this.renderCamera);
+        // this.renderScene.overridematerial = null;
+
+
+
+        loader.load('/38/test4_gltf/test4.gltf', function(gltf){
+            // addOutlineObject(gltf.scene);
+            scene.add(gltf.scene);
+            function animate(){
+                requestAnimationFrame(animate)
+                // gltf.scene.rotation.y+=0.003;
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+        });
+</script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="canvas" width="1200" height="650"></canvas>
+    <!-- <button type="button" onclick="movehome(120,250,330)">home(Beta)</button> -->
+    <!-- <input type="button" value="home" onclick=" -->
+    <!-- movehome(120,250,330); -->
+  <!-- "> -->
+</body>
+</html>

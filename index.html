@@ -5,8 +5,8 @@
     <title>Document</title>
     <canvas id="canvas" width="1200" height="650"></canvas> <!--화면크기 조절-->
     <!--버튼-->
-    <button type="button" onclick="movehome()">home(Beta)</button>
-    <input type="button" value="home" onclick="movehome()">
+    <!-- <button type="button" onclick="movehome()">home(Beta)</button>
+    <input type="button" value="home" onclick="movehome()"> -->
     <script type="importmap">
         {
             "imports": {
@@ -129,7 +129,7 @@
 
 
 
-        loader.load('test4_gltf/test4.gltf', function(gltf){        //파일경로 지정(''부분)
+        loader.load('/38/test4_gltf/test4.gltf', function(gltf){        //파일경로 지정(''부분)
             // addOutlineObject(gltf.scene);
             let model =gltf.scene;
             scene.add(gltf.scene);

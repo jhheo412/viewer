@@ -45,7 +45,7 @@
         width:100%
     }
 } */
-body{
+#canvas{
     /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#ffffff+229,e5e5e5+100;White+3D */
     background: rgba(229,229,229,1); /* Old browsers */
     background: -moz-linear-gradient(top,  rgba(255,255,255,0.7) 50%, rgba(229,229,229,1) 100%); /* FF3.6-15 */
@@ -98,5 +98,3 @@ select{
     transform: translate(300%,-50%);
     transition:0.3s;
 }
-/*
-*/

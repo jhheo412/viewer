@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8" content="width-device-width, initial-scale-1">
     <title>Document</title>
+    <canvas id="canvas" width="1200" height="650"></canvas> <!--화면크기 조절-->
+    <!--버튼-->
+    <button type="button" onclick="movehome()">home(Beta)</button>
+    <input type="button" value="home" onclick="movehome()">
     <script type="importmap">
         {
             "imports": {
@@ -17,17 +21,26 @@
             }
         }
     </script>
-    <script type="module">
     
+    <!--화면 스타일 지정-->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <script type="module">
+            
+        //기본
         import * as THREE from 'three';
+        //GLTF 파일 로더
         import {GLTFLoader} from 'GLTFLoader';
+        //조작
         import {OrbitControls} from 'OrbitControls';
+        //GLTF 최적화
         import {DRACOLoader} from 'DRACOLoader'; 
+        //그림자
         // import {EffectComposer} from 'EffectComposer';
         // import {RenderPass} from 'RenderPass';
         // import {OutlinePass} from 'OutlinePass';
 
-        // import {}
         
 
         //장면 추가
@@ -42,88 +55,102 @@
         });
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.shadowMapSoft = true;
+        renderer.setClearColor( 0x000000, 0 );
+
+        let raycaster = new THREE.Raycaster();
 
         //카메라 설정
         let camera = new THREE. PerspectiveCamera(2.3,1.9);
-        function movehome(x,y,z){
-            camera.position.set(x,y,z);
+        function movehome(){
+            camera.position.set(120,250,330);
         }
-        movehome(120,250,330);
+        movehome();
         camera.lookAt(new THREE.Vector3(0,0,0));
 
         //배경색 설정
-        scene.background = new THREE.Color('white');
+        // scene.background = new THREE.Color('white');
         
-        //빛 설정
-        let DirectionalLight = new THREE.DirectionalLight(0xffffff,0.3);
-        DirectionalLight.position.set(30,40,-30);
+       
+        
+        //위쪽방향 조명(해) 설정
+        let DirectionalLight = new THREE.DirectionalLight(0xffffff,1);
+        DirectionalLight.position.set(20,20,30);
         DirectionalLight.castShadow=true;
-        let light = new THREE.AmbientLight(0xffffff,1);
+        let lightHolder = new THREE.Group();
+        lightHolder.add(DirectionalLight);
+
+        //전방향 조명 설정
+        let light = new THREE.AmbientLight(0xffffff,0.72);
+        //조명 추가
         scene.add(light);
-        scene.add(DirectionalLight);
+        scene.add(lightHolder);
+        
 
         //그림자 설정
-        DirectionalLight.shadow.mapSize.width = 512;
-        DirectionalLight.shadow.mapSize.height = 512;
         DirectionalLight.shadow.camera.near = 0.5;
         DirectionalLight.shadow.camera.far = 500;
+        DirectionalLight.shadow.camera.left = -15
+        DirectionalLight.shadow.camera.right = 15
+        DirectionalLight.shadow.camera.top = 15
+        DirectionalLight.shadow.camera.bottom = -15
 
-        //shadow helper 조작
-//         let helper = new THREE.CameraHelper(DirectionalLight.shadow.camera);
-//         scene.add(helper);
+        //그림자 방향 도우미(확인용)
+        // let helper = new THREE.CameraHelper(DirectionalLight.shadow.camera);
+        // scene.add(helper);
 
         //바닥 설정
-        let planeSize = 100;
-        let planGeo = new THREE.PlaneGeometry(planeSize,planeSize);
-        let planeMat = new THREE.MeshPhongMaterial({
-            color: 0xb4b4b4,
-            side: THREE.DoubleSide,
-        });
-        let plane = new THREE.Mesh(planGeo,planeMat);
-        plane.rotation.x = Math.PI * -0.5;
-        plane.receiveShadow = true;
-        scene.add(plane);
-
+        // let planeSize = 100;
+        // let planGeo = new THREE.PlaneGeometry(planeSize,planeSize);
+        // let planeMat = new THREE.MeshPhongMaterial({
+        //     color: 0xb4b4b4,
+        //     side: THREE.DoubleSide,
+        // });
+        // let plane = new THREE.Mesh(planGeo,planeMat);
+        // plane.rotation.x = Math.PI * -0.5;
+        // plane.receiveShadow = true;
+        // scene.add(plane);
 
         //조작 설정
         let controls = new OrbitControls(camera, renderer.domElement);
         controls.maxPolarAngle = Math.PI/2;
+        controls.enableDamping = true;
         controls.mouseButtons= {
             LEFT: THREE.MOUSE.ROTATE,
             MIDDLE: THREE.MOUSE.DOLLY
         }
         controls.update();
-    
+
+        //모델 불러오기
         let loader = new GLTFLoader();
         let dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('https://unpkg.com/three@0.148.0/examples/jsm/libs/draco/');
         loader.setDRACOLoader(dracoLoader);
 
-        // this.renderScene.overrideMaterial = new THREE.MeshNormalmaterial();
-        // renderer.render(this.renderScene, this.renderCamera);
-        // this.renderScene.overridematerial = null;
 
 
-
-        loader.load('test4_gltf/test4.gltf', function(gltf){
+        loader.load('test4_gltf/test4.gltf', function(gltf){        //파일경로 지정(''부분)
             // addOutlineObject(gltf.scene);
+            let model =gltf.scene;
             scene.add(gltf.scene);
             function animate(){
                 requestAnimationFrame(animate)
                 // gltf.scene.rotation.y+=0.003;
                 controls.update();
                 renderer.render(scene, camera);
+                lightHolder.quaternion.copy(camera.quaternion);
+
+                // model.traverse(function(node){
+                //     if(node.isMesh)
+                //         node.castShadow = true;
+                // })
+                // // model.castShadow = true;
             }
             animate();
         });
-</script>
+    </script>
 
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <canvas id="canvas" width="1200" height="650"></canvas>
-    <!-- <button type="button" onclick="movehome(120,250,330)">home(Beta)</button> -->
-    <!-- <input type="button" value="home" onclick=" -->
+    
     <!-- movehome(120,250,330); -->
   <!-- "> -->
 </body>
